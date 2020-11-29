@@ -3,6 +3,9 @@ import { Parser, Store } from 'n3';
 
 const { rdfs } = context['@context'];
 
+let currentList = null;
+let currentSocket = null;
+
 // Collect elements by ID
 const elements = {};
 document.querySelectorAll('[id]').forEach(e => elements[e.id] = e);
@@ -19,7 +22,9 @@ async function refreshCurrentList() {
 // Loads and displays the list at the given URL
 async function displayList(listUrl) {
   // Clear the list
-  elements.list.replaceChildren();
+  if (listUrl !== currentList)
+    elements.list.replaceChildren();
+  currentList = listUrl;
 
   // Fetch and parse the triples
   const response = await fetch(listUrl, {
@@ -32,11 +37,39 @@ async function displayList(listUrl) {
 
   // Display the list
   const labels = store.getObjects(null, `${rdfs}label`, null);
-  elements.list.append(...labels.map(label => {
+  elements.list.replaceChildren(...labels.map(label => {
     const item = document.createElement('li');
     item.textContent = label.value;
     return item;
   }));
+
+  // Subscribe to updates
+  await subscribe(listUrl, response.headers.get('updates-via'));
+}
+
+// Subscribes to updates to the given resource via a WebSocket
+async function subscribe(resource, socketUrl) {
+  // Close any existing socket for a different URL
+  if (currentSocket && currentSocket.socketUrl !== socketUrl)  {
+    currentSocket.close();
+    currentSocket = null;
+  }
+
+  // Subscribe to the resource via a WebSocket
+  if (socketUrl) {
+    // Create a new WebSocket if needed
+    if (!currentSocket) {
+      currentSocket = new WebSocket(socketUrl, 'solid/0.1.0-alpha');
+      await new Promise(resolve => currentSocket.addEventListener('open', resolve));
+      currentSocket.socketUrl = socketUrl;
+      currentSocket.addEventListener('message', message => {
+        if (message.data.startsWith('pub '))
+          refreshCurrentList();
+      });
+    }
+    // Subscribe to the resource
+    currentSocket.send(`sub ${resource}`);
+  }
 }
 
 // Parses the RDF into triples
