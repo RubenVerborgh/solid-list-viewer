@@ -1,11 +1,37 @@
+@font-face {
+  font-family: 'Caveat';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(caveat.woff) format('woff');
+}
+
+:root {
+  --primary: #7c4dff;
+  --tertiary-bis: #FF6969;
+}
+
 body {
   max-width: 800px;
-  margin: 0 auto;
+  margin: .5em auto 1em;
   padding: 0 1em;
+  transform: rotate(-3deg);
 }
 
 body, input, textarea, button {
-  font: 12pt/1.3 sans-serif;
+  font: 32pt/1 Caveat, sans-serif;
+}
+
+h1 {
+  margin: 0;
+  color: var(--primary);
+  font-size: 3em;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
 }
 
 fieldset {
@@ -13,26 +39,27 @@ fieldset {
   border: none;
 }
 
-fieldset > ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-fieldset > ul > li {
-  display: flex;
-  margin-bottom: 1em;
-}
-
 label {
-  font-weight: bold;
-  margin: .3em 1em 0 0;
-}
-label::after {
-  content: ': ';
+  display: none;
 }
 
-input, textarea {
-  flex-grow: 1;
-  border: 1px solid;
-  padding: .33em;
+input {
+  width: 100%;
+  border: none;
+  cursor: pointer;
+  color: var(--tertiary-bis);
+  font-size: 1.5em;
+}
+:focus {
+  outline: none;
+}
+
+#list {
+  margin: .5em 0;
+}
+#list > li {
+  margin-bottom: .25em;
+}
+#list > li:before {
+  content: '– ';
 }
