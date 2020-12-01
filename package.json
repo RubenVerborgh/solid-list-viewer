@@ -1,0 +1,16 @@
+{
+  "name": "solid-list-viewer",
+  "private": true,
+  "scripts": {
+    "build": "webpack ./main.js",
+    "prepare": "npm run build"
+  },
+  "dependencies": {
+    "@solid/context": "^1.1.0",
+    "n3": "^1.6.4"
+  },
+  "devDependencies": {
+    "webpack": "^4.44.2",
+    "webpack-cli": "^4.2.0"
+  }
+}
