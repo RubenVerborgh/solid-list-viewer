@@ -19,7 +19,7 @@ body {
 }
 
 body, input, textarea, button {
-  font: 32pt/1 Caveat, sans-serif;
+  font: 32pt/1.1 Caveat, sans-serif;
 }
 
 h1 {
@@ -58,7 +58,7 @@ input {
   margin: .5em 0;
 }
 #list > li {
-  margin-bottom: .25em;
+  margin-bottom: .2em;
 }
 #list > li:before {
   content: '– ';
