@@ -24,7 +24,6 @@ async function displayList(listUrl) {
   // Clear the list
   if (listUrl !== currentList)
     elements.list.replaceChildren();
-  currentList = listUrl;
 
   // Fetch and parse the triples
   const response = await fetch(listUrl, {
@@ -44,7 +43,9 @@ async function displayList(listUrl) {
   }));
 
   // Subscribe to updates
-  await subscribe(listUrl, response.headers.get('updates-via'));
+  if (listUrl !== currentList)
+    await subscribe(listUrl, response.headers.get('updates-via'));
+  currentList = listUrl;
 }
 
 // Subscribes to updates to the given resource via a WebSocket
