@@ -43,33 +43,42 @@ async function displayList(listUrl) {
   }));
 
   // Subscribe to updates
-  if (listUrl !== currentList)
-    await subscribe(listUrl, response.headers.get('updates-via'));
-  currentList = listUrl;
+  if (listUrl !== currentList) {
+    currentList = listUrl;
+    await subscribeToList(response.headers.get('updates-via'));
+  }
 }
 
-// Subscribes to updates to the given resource via a WebSocket
-async function subscribe(resource, socketUrl) {
+// Subscribes to updates to the list via a WebSocket
+async function subscribeToList(socketUrl) {
   // Close any existing socket for a different URL
   if (currentSocket && currentSocket.socketUrl !== socketUrl)  {
     currentSocket.close();
     currentSocket = null;
   }
 
-  // Subscribe to the resource via a WebSocket
+  // Subscribe to the list via a WebSocket
   if (socketUrl) {
     // Create a new WebSocket if needed
     if (!currentSocket) {
       currentSocket = new WebSocket(socketUrl, 'solid/0.1.0-alpha');
       await new Promise(resolve => currentSocket.addEventListener('open', resolve));
       currentSocket.socketUrl = socketUrl;
+      // Refresh when a pub message is received
       currentSocket.addEventListener('message', message => {
         if (message.data.startsWith('pub '))
           refreshCurrentList();
       });
+      // Re-subscribe when the socket times out
+      currentSocket.addEventListener('close', (event) => {
+        if (event.target === currentSocket) {
+          currentSocket = null;
+          subscribeToList(socketUrl);
+        }
+      });
     }
     // Subscribe to the resource
-    currentSocket.send(`sub ${resource}`);
+    currentSocket.send(`sub ${currentList}`);
   }
 }
 
